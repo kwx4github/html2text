@@ -60,6 +60,7 @@ GOOGLE_LIST_INDENT = 36
 IGNORE_ANCHORS = False
 IGNORE_IMAGES = False
 IGNORE_EMPHASIS = False
+IGNORE_SUPSUB = False
 
 ### Entity Nonsense ###
 
@@ -193,6 +194,7 @@ class HTML2Text(HTMLParser.HTMLParser):
         self.ignore_links = IGNORE_ANCHORS
         self.ignore_images = IGNORE_IMAGES
         self.ignore_emphasis = IGNORE_EMPHASIS
+        self.ignore_supsub = IGNORE_SUPSUB
         self.google_doc = False
         self.ul_item_mark = '*'
         self.emphasis_mark = '_'
@@ -443,6 +445,11 @@ class HTML2Text(HTMLParser.HTMLParser):
 
         if tag in ['em', 'i', 'u'] and not self.ignore_emphasis: self.o(self.emphasis_mark)
         if tag in ['strong', 'b'] and not self.ignore_emphasis: self.o(self.strong_mark)
+        if tag in ['sup', 'sub'] and not self.ignore_supsub: 
+            if start:
+                self.o("<"+tag+">")
+            else:
+                self.o("</"+tag+">")
         if tag in ['del', 'strike', 's']:
             if start:
                 self.o("<"+tag+">")
@@ -838,6 +845,8 @@ def main():
                               version='%prog ' + __version__)
     p.add_option("--ignore-emphasis", dest="ignore_emphasis", action="store_true",
         default=IGNORE_EMPHASIS, help="don't include any formatting for emphasis")
+    p.add_option("--ignore-sup-sub", dest="ignore_supsub", action="store_true",
+        default=IGNORE_SUPSUB, help="don't include any formatting for sup tags and sup tags")
     p.add_option("--ignore-links", dest="ignore_links", action="store_true",
         default=IGNORE_ANCHORS, help="don't include any formatting for links")
     p.add_option("--ignore-images", dest="ignore_images", action="store_true",
@@ -901,6 +910,7 @@ def main():
     h.body_width = options.body_width
     h.list_indent = options.list_indent
     h.ignore_emphasis = options.ignore_emphasis
+    h.ignore_supsub = options.ignore_supsub
     h.ignore_links = options.ignore_links
     h.ignore_images = options.ignore_images
     h.google_doc = options.google_doc
